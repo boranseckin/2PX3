@@ -4,6 +4,24 @@ from pandas import Series
 from scipy.signal import argrelextrema
 from matplotlib import pyplot as plt
 
+def check_HDPE(maxima):
+    for index, value in maxima.items():
+        if (index > 2800 and index < 2950):
+            if (value > 0.45):
+                print(f"{index} {value}")
+                return True
+
+    return False
+
+def check_LDPE(maxima):
+    for index, value in maxima.items():
+        if (index > 2800 and index < 2950):
+            if (value < 0.45 and value > 0.25):
+                print(f"{index} {value}")
+                return True
+
+    return False
+
 def user_sorting_function(sensors_output):
     # TODO: change this
     decision = { 1: Plastic.Blank }
@@ -25,11 +43,19 @@ def user_sorting_function(sensors_output):
             max_wavenumbers.drop(index=index, inplace=True)
 
     # Plot the found points on the spectrum (this is just visualisation)
-    spectrum.plot()
-    max_wavenumbers.plot(title=spectrum.name, style="v", color="red")
-    plt.show()
+    # spectrum.plot()
+    # max_wavenumbers.plot(title=spectrum.name, style="v", color="red")
+    # plt.show()
 
     # TODO: add decision logic
+    if (spectrum.name == 'HDPE' or spectrum.name == 'LDPE'):
+        print(spectrum.name)
+        if check_HDPE(max_wavenumbers):
+            decision[1] = Plastic.HDPE
+        elif check_LDPE(max_wavenumbers):
+            decision[1] = Plastic.LDPE
+        print()
+
 
     return decision
 
