@@ -22,6 +22,29 @@ def check_LDPE(maxima):
 
     return False
 
+def check_general(maxima):
+    temp = maxima.keys().values
+    if not temp.any():
+        return Plastic.PS
+    for i in range(len(temp)):
+        temp[i]=temp[i]//100
+    if (17 in temp and (13 in temp or 12 in temp)):
+        return Plastic.PU
+    if (17 in temp and 14 in temp):
+        return Plastic.PET
+    if (17 in temp and 15 in temp):
+        return Plastic.PC
+    if (29 in temp):
+        return Plastic.PP
+    if (17 in temp):
+        return Plastic.Polyester
+    if (12 in temp):
+        return Plastic.PVC
+    if (14 in temp):
+        return Plastic.PS
+
+    return Plastic.Blank
+
 def user_sorting_function(sensors_output):
     # TODO: change this
     decision = { 1: Plastic.Blank }
@@ -29,32 +52,33 @@ def user_sorting_function(sensors_output):
     spectrum = sensors_output[1]['spectrum']
 
     # check for zero and shortcircuit
-    if (spectrum.iloc[0] == 0):
-        return { 1: Plastic.Blank }
+    # if (spectrum.iloc[0] == 0):
+    #     return { 1: Plastic.Blank }
 
     # Get local maxima relative to 10 other points on each side
     iloc_max_wavenumbers = argrelextrema(spectrum.values, comparator=np.greater, order=10)[0]
     max_wavenumbers = spectrum.iloc[iloc_max_wavenumbers]
 
     # Remove every point that is less than 75% of the mean
-    threshold = max_wavenumbers.values.mean() * 75 / 100
+    threshold = 0.09
     for index, value in max_wavenumbers.items():
         if (value < threshold):
             max_wavenumbers.drop(index=index, inplace=True)
 
     # Plot the found points on the spectrum (this is just visualisation)
-    # spectrum.plot()
-    # max_wavenumbers.plot(title=spectrum.name, style="v", color="red")
-    # plt.show()
+    if spectrum.name != "background":
+        spectrum.plot()
+        max_wavenumbers.plot(title=spectrum.name, style="v", color="red")
+        print(max_wavenumbers.keys().values)
+        plt.show()
 
     # TODO: add decision logic
-    if (spectrum.name == 'HDPE' or spectrum.name == 'LDPE'):
-        print(spectrum.name)
-        if check_HDPE(max_wavenumbers):
-            decision[1] = Plastic.HDPE
-        elif check_LDPE(max_wavenumbers):
-            decision[1] = Plastic.LDPE
-        print()
+    if check_HDPE(max_wavenumbers):
+        decision[1] = Plastic.HDPE
+    elif check_LDPE(max_wavenumbers):
+        decision[1] = Plastic.LDPE
+    else:
+        decision[1] = check_general(max_wavenumbers)
 
 
     return decision
@@ -65,7 +89,7 @@ def main():
     # simulation parameters
     conveyor_length = 1000  # cm
     conveyor_width = 100  # cm
-    conveyor_speed = 10  # cm per second
+    conveyor_speed = 5  # cm per second
     num_containers = 100
     sensing_zone_location_1 = 500  # cm
     sensors_sampling_frequency = 1  # Hz
