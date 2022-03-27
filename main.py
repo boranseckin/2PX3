@@ -112,7 +112,7 @@ def user_sorting_function(sensors_output):
     spectrum.plot()
     max_wavenumbers.plot(title=spectrum.name, style="v", color="red")
     plt.plot(spectrum.keys().values[:-30], p(spectrum.keys().values[:-30]) * 2.7, color="green")
-    plt.hlines(y=spectrum.values.mean(), xmin=spectrum.keys().values[0], xmax=spectrum.keys().values[-1], linestyles='-', color='black')
+    plt.hlines(y=threshold / 120 * 100, xmin=spectrum.keys().values[0], xmax=spectrum.keys().values[-1], linestyles='-', color='black')
     plt.hlines(y=threshold, xmin=spectrum.keys().values[0], xmax=spectrum.keys().values[-1], linestyles='-', color='blue')
     plt.show()
     
