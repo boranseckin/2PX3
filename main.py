@@ -84,6 +84,8 @@ def user_sorting_function(sensors_output):
     if (spectrum.iloc[0] < 0.001 or spectrum.values.mean() < 0.01):
         return { 1: Plastic.Blank }
 
+    # Generate a line of best fit for the spectrum
+    # Ignore the first 30 points because there is a starting spike
     z = np.polyfit(spectrum.keys().values[:-30], spectrum.values[:-30], 5)
     p = np.poly1d(z)
 
@@ -110,14 +112,17 @@ def user_sorting_function(sensors_output):
 
     # Plot all the information on the spectrum (this is just visualisation)
     spectrum.plot()
-    max_wavenumbers.plot(title=spectrum.name, style="v", color="red")
+    max_wavenumbers.plot(title=spectrum.name, label="maxima", style="v", color="red")
     plt.plot(spectrum.keys().values[:-30], p(spectrum.keys().values[:-30]) * 2.7, color="green")
-    plt.hlines(y=threshold / 120 * 100, xmin=spectrum.keys().values[0], xmax=spectrum.keys().values[-1], linestyles='-', color='black')
-    plt.hlines(y=threshold, xmin=spectrum.keys().values[0], xmax=spectrum.keys().values[-1], linestyles='-', color='blue')
-    plt.show()
+    plt.hlines(y=threshold / 120 * 100, xmin=spectrum.keys().values[0], xmax=spectrum.keys().values[-1], label="mean", linestyles='-', color='black')
+    plt.hlines(y=threshold, xmin=spectrum.keys().values[0], xmax=spectrum.keys().values[-1], label="threshold", linestyles='-', color='yellow')
+    # plt.legend()
     
     for index, value in max_wavenumbers.items():
         print(f"{index} - {value}")
+        plt.text(index, value, f"({index}, {round(value, 3)})")
+
+    plt.show()
 
     if check_PS(max_wavenumbers):
         decision[1] = Plastic.PS
