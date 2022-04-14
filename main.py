@@ -193,7 +193,7 @@ def main():
     # simulation parameters
     conveyor_length = 1000  # cm
     conveyor_width = 100  # cm
-    conveyor_speed = 5  # cm per second
+    conveyor_speed = 15  # cm per second
     num_containers = 100
     sensing_zone_location_1 = 500  # cm
     sensors_sampling_frequency = 10  # Hz
